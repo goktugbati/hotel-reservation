@@ -6,7 +6,6 @@ import model.room.RoomType;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class AdminMenu {
@@ -85,66 +84,88 @@ public class AdminMenu {
 
     private static void addARoom() {
         try {
-            String roomNumber;
-            do {
-                System.out.println("Enter room number:");
-                roomNumber = scanner.nextLine();
-                if (roomNumber.isEmpty()) {
-                    System.out.println("Room number cannot be empty. Please enter a valid room number.");
-                }
-            } while (roomNumber.isEmpty());
+            String roomNumber = getRoomNumber();
+            double price = getRoomPrice();
+            RoomType roomType = getRoomType();
 
-            double price = 0;
-            boolean validPrice = false;
-            do {
-                try {
-                    System.out.println("Enter room price:");
-                    price = Double.parseDouble(scanner.nextLine());
-                    if (price <= 0) {
-                        System.out.println("Price must be a positive number. Please enter a valid price.");
-                    } else {
-                        validPrice = true;
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format. Please enter a valid number.");
-                }
-            } while (!validPrice);
-
-            int roomTypeInput = 0;
-            boolean validRoomType = false;
-            do {
-                try {
-                    System.out.println("Enter room type: 1 for single bed, 2 for double bed");
-                    roomTypeInput = Integer.parseInt(scanner.nextLine());
-                    if (roomTypeInput == 1 || roomTypeInput == 2) {
-                        validRoomType = true;
-                    } else {
-                        System.out.println("Invalid input. Please enter 1 for single bed or 2 for double bed.");
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid number format. Please enter a valid number.");
-                }
-            } while (!validRoomType);
-
-            Room room = new Room(roomNumber, price, roomTypeInput == 1 ? RoomType.SINGLE : RoomType.DOUBLE);
+            Room room = new Room(roomNumber, price, roomType);
             adminResource.addRoom(Collections.singletonList(room));
             System.out.println("Room added successfully!");
 
-            System.out.println("Would you like to add another room? Y/N");
-            String answer = scanner.nextLine();
-            if (answer.equalsIgnoreCase("Y")) {
-                addARoom();
-            } else if (answer.equalsIgnoreCase("N")) {
-                System.out.println("Returning to Admin Menu...");
-                adminMenu();
-            } else {
-                System.out.println("Please enter Y (yes) or N (no).");
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input type. Please enter the correct values.");
-            scanner.nextLine();
+            handleAddAnotherRoom();
         } catch (Exception e) {
             System.out.println("Error adding room: " + e.getMessage());
+        }
+    }
+
+    private static String getRoomNumber() {
+        String roomNumber;
+        do {
+            System.out.println("Enter room number:");
+            roomNumber = scanner.nextLine();
+            if (roomNumber.isEmpty()) {
+                System.out.println("Room number cannot be empty. Please enter a valid room number.");
+            } else {
+                try {
+                    Integer.parseInt(roomNumber);
+                } catch (NumberFormatException e) {
+                    System.out.println("Room number must be an integer. Please enter a valid room number.");
+                    roomNumber = "";
+                }
+            }
+        } while (roomNumber.isEmpty());
+        return roomNumber;
+    }
+
+    private static double getRoomPrice() {
+        double price = 0;
+        boolean validPrice = false;
+        do {
+            try {
+                System.out.println("Enter room price:");
+                price = Double.parseDouble(scanner.nextLine());
+                if (price <= 0) {
+                    System.out.println("Price must be a positive number. Please enter a valid price.");
+                } else {
+                    validPrice = true;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number format. Please enter a valid number.");
+            }
+        } while (!validPrice);
+        return price;
+    }
+
+    private static RoomType getRoomType() {
+        int roomTypeInput = 0;
+        boolean validRoomType = false;
+        do {
+            try {
+                System.out.println("Enter room type: 1 for single bed, 2 for double bed");
+                roomTypeInput = Integer.parseInt(scanner.nextLine());
+                if (roomTypeInput == 1 || roomTypeInput == 2) {
+                    validRoomType = true;
+                } else {
+                    System.out.println("Invalid input. Please enter 1 for single bed or 2 for double bed.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number format. Please enter a valid number.");
+            }
+        } while (!validRoomType);
+        return roomTypeInput == 1 ? RoomType.SINGLE : RoomType.DOUBLE;
+    }
+
+    private static void handleAddAnotherRoom() {
+        System.out.println("Would you like to add another room? Y/N");
+        String answer = scanner.nextLine();
+        if (answer.equalsIgnoreCase("Y")) {
+            addARoom();
+        } else if (answer.equalsIgnoreCase("N")) {
+            System.out.println("Returning to Admin Menu...");
+            adminMenu();
+        } else {
+            System.out.println("Please enter Y (yes) or N (no).");
+            handleAddAnotherRoom();
         }
     }
 
