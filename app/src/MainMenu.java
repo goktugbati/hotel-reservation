@@ -5,9 +5,11 @@ import model.room.IRoom;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class MainMenu {
@@ -121,6 +123,7 @@ public class MainMenu {
             }
         } else {
             System.out.println("No rooms available for the selected dates.");
+            suggestAlternativeDates(checkInDate, checkOutDate, customerEmail);
         }
     }
 
@@ -155,6 +158,42 @@ public class MainMenu {
             } catch (ParseException ex) {
                 System.out.println("Invalid date format. Please enter the date in MM/dd/yyyy format:");
             }
+        }
+    }
+
+    private static void suggestAlternativeDates(Date checkInDate, Date checkOutDate, String customerEmail) {
+        // Calculate the difference between check-in and check-out dates
+        long diffInMillies = Math.abs(checkOutDate.getTime() - checkInDate.getTime());
+        long diffDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(checkInDate);
+        //Search for available rooms by adding the difference in days to the check-in and check-out dates
+        calendar.add(Calendar.DAY_OF_MONTH, (int) diffDays);
+        Date newCheckInDate = calendar.getTime();
+
+        calendar.setTime(checkOutDate);
+        calendar.add(Calendar.DAY_OF_MONTH, (int) diffDays);
+        Date newCheckOutDate = calendar.getTime();
+
+        Collection<IRoom> rooms = hotelResource.findARoom(newCheckInDate, newCheckOutDate);
+        if (rooms != null && !rooms.isEmpty()) {
+            System.out.println("Suggested alternative dates:");
+            System.out.println("Check-in date: " + new SimpleDateFormat(DEFAULT_DATE_FORMAT).format(newCheckInDate));
+            System.out.println("Check-out date: " + new SimpleDateFormat(DEFAULT_DATE_FORMAT).format(newCheckOutDate));
+            System.out.println("Available rooms:");
+            for (IRoom room : rooms) {
+                System.out.println(room);
+            }
+            System.out.println("Do you want to reserve a room for these dates? (y/n)");
+            String reserve = scanner.nextLine();
+            if (reserve.equalsIgnoreCase("y")) {
+                reserveRoom(customerEmail, newCheckInDate, newCheckOutDate);
+            } else {
+                System.out.println("Reservation cancelled.");
+            }
+        } else {
+            System.out.println("No alternative dates with available rooms found.");
         }
     }
 
