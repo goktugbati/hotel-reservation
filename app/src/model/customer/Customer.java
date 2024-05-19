@@ -18,6 +18,10 @@ public class Customer {
         this.email = email;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     @Override
     public String toString() {
         return "First Name: " + this.firstName
