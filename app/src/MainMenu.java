@@ -16,42 +16,39 @@ public class MainMenu {
     private static final String DEFAULT_DATE_FORMAT = "MM/dd/yyyy";
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
 
+    public static void main(String[] args) {
+        mainMenu();
+    }
+
     public static void mainMenu() {
-        String line = "";
-        printMainMenu();
-
-        try {
-            do {
-                line = scanner.nextLine();
-
-                if (line.length() == 1) {
-                    switch (line.charAt(0)) {
-                        case '1':
-                            findAndReserveRoom();
-                            break;
-                        case '2':
-                            seeMyReservations();
-                            break;
-                        case '3':
-                            createAccount();
-                            break;
-                        case '4':
-                            AdminMenu.adminMenu();
-                            break;
-                        case '5':
-                            System.out.println("Exit");
-                            break;
-                        default:
-                            System.out.println("Unknown action\n");
-                            break;
-                    }
-                } else {
-                    System.out.println("Error: Invalid action\n");
+        String option;
+        do {
+            printMainMenu();
+            option = scanner.nextLine();
+            if (option.length() == 1) {
+                switch (option.charAt(0)) {
+                    case '1':
+                        findAndReserveRoom();
+                        break;
+                    case '2':
+                        seeMyReservations();
+                        break;
+                    case '3':
+                        createAccount();
+                        break;
+                    case '4':
+                        AdminMenu.adminMenu();
+                        break;
+                    case '5':
+                        System.out.println("Exit");
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
                 }
-            } while (line.charAt(0) != '5' || line.length() != 1);
-        } catch (StringIndexOutOfBoundsException ex) {
-            System.out.println("Empty input received. Exiting program...");
-        }
+            } else {
+                System.out.println("Error: Invalid action\n");
+            }
+        } while (!option.equals("5"));
     }
 
     public static void printMainMenu() {
@@ -80,7 +77,6 @@ public class MainMenu {
             String lastName = scanner.nextLine();
             hotelResource.createACustomer(email, firstName, lastName);
             System.out.println("Account created successfully!");
-            MainMenu.mainMenu();
         } catch (Exception e) {
             System.out.println("Error creating account: " + e.getMessage());
         }
@@ -100,7 +96,6 @@ public class MainMenu {
         Customer customer = hotelResource.getCustomer(customerEmail);
         if (customer == null) {
             System.out.println("No customer found for the email address: " + customerEmail);
-            mainMenu();
             return;
         }
         Date checkInDate = getCheckInDate();
@@ -120,31 +115,34 @@ public class MainMenu {
             System.out.println("Do you want to reserve a room? (y/n)");
             String reserve = scanner.nextLine();
             if (reserve.equalsIgnoreCase("y")) {
-                System.out.println("Enter room number:");
-                String roomNumber = scanner.nextLine();
-                IRoom room = hotelResource.getRoom(roomNumber);
-                while (room == null) {
-                    System.out.println("Invalid room number. Please enter a valid room number:");
-                    roomNumber = scanner.nextLine();
-                    room = hotelResource.getRoom(roomNumber);
-                }
-                hotelResource.bookARoom(customerEmail, room, checkInDate, checkOutDate);
-                System.out.println("Room has been booked successfully");
+                reserveRoom(customerEmail, checkInDate, checkOutDate);
             } else {
                 System.out.println("Reservation cancelled.");
             }
         } else {
             System.out.println("No rooms available for the selected dates.");
         }
-        mainMenu();
     }
 
-    private static Date getCheckInDate(){
+    private static void reserveRoom(String customerEmail, Date checkInDate, Date checkOutDate) {
+        System.out.println("Enter room number:");
+        String roomNumber = scanner.nextLine();
+        IRoom room = hotelResource.getRoom(roomNumber);
+        while (room == null) {
+            System.out.println("Invalid room number. Please enter a valid room number:");
+            roomNumber = scanner.nextLine();
+            room = hotelResource.getRoom(roomNumber);
+        }
+        hotelResource.bookARoom(customerEmail, room, checkInDate, checkOutDate);
+        System.out.println("Room has been booked successfully");
+    }
+
+    private static Date getCheckInDate() {
         System.out.println("Enter check-in date (MM/dd/yyyy):");
         return getInputDate();
     }
 
-    private static Date getCheckOutDate(){
+    private static Date getCheckOutDate() {
         System.out.println("Enter check-out date (MM/dd/yyyy):");
         return getInputDate();
     }
@@ -181,6 +179,5 @@ public class MainMenu {
                 }
             }
         }
-        mainMenu();
     }
 }
