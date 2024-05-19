@@ -1,6 +1,6 @@
 # Ignore IDEA project files
 .idea/
-*.iml
+app/*.iml
 
 # Ignore compiled class files
 *.class
