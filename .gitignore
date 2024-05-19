@@ -1,15 +1,12 @@
-# IntelliJ IDEA
+# Ignore IDEA project files
 .idea/
 *.iml
 
-# Compiled class files
+# Ignore compiled class files
 *.class
 
 # Log file
 *.log
-
-# BlueJ files
-*.ctxt
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -58,5 +55,5 @@ bin/
 Thumbs.db
 ehthumbs.db
 
-# IDE-specific files
-*.idea
+# Output directory
+out/
